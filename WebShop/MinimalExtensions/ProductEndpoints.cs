@@ -14,7 +14,7 @@ public static class ProductEndpoints
         group.MapGet("{start:int}/{count:int}", GetManyAsync);
         group.MapPost("", AddAsync);
         group.MapDelete("{id:int}", DeleteAsync);
-        group.MapPut("{id:int}", UpdateAsync);
+        group.MapPut("", UpdateAsync);
         group.MapGet("/available", GetAvailableProductsAsync);
 
         return app;
@@ -23,8 +23,13 @@ public static class ProductEndpoints
     public static async Task<IResult> GetAllAsync(IUnitOfWork uow)
     {
         var products = await uow.Products.GetAllAsync();
-        return products is not null ? Results.Ok(products) : Results.NoContent();
+        if (products == null || !products.Any())
+        {
+            return Results.NoContent();
+        }
+        return Results.Ok(products);
     }
+
     public static async Task<IResult> GetByIdAsync(IUnitOfWork uow, int id)
     {
         var product = await uow.Products.GetByIdAsync(id);
@@ -34,31 +39,45 @@ public static class ProductEndpoints
     public static async Task<IResult> GetManyAsync(IUnitOfWork uow, int start, int count)
     {
         var products = await uow.Products.GetManyAsync(start, count);
+        if (products == null || !products.Any())
+        {
+            return Results.NoContent();
+        }
         return Results.Ok(products);
     }
 
     public static async Task<IResult> AddAsync(IUnitOfWork uow, Product product)
     {
+        if (product is null) return Results.BadRequest();
         await uow.Products.AddAsync(product);
-        return Results.Created($"/api/product/{product.Id}", product);
+        uow.Save();
+        return Results.Ok();
     }
 
     public static async Task<IResult> DeleteAsync(IUnitOfWork uow, int id)
     {
+        var product = await uow.Products.GetByIdAsync(id);
+        if (product is null)
+            return Results.NotFound();
+
         await uow.Products.DeleteAsync(id);
-        return Results.NoContent();
+        uow.Save();
+        return Results.Ok();
     }
 
-    public static async Task<IResult> UpdateAsync(IUnitOfWork uow, int id, Product product)
+    public static async Task<IResult> UpdateAsync(IUnitOfWork uow, Product product)
     {
-        product.Id = id;
+        if (product is null)
+            return Results.BadRequest();
+
         await uow.Products.UpdateProduct(product);
-        return Results.NoContent();
+        uow.Save();
+        return Results.Ok();
     }
 
     public static async Task<IResult> GetAvailableProductsAsync(IUnitOfWork uow)
     {
         var products = await uow.Products.GetAvailableProducts();
-        return products is not null ? Results.Ok(products) : Results.NoContent();
+        return products.Any() ? Results.Ok(products) : Results.NoContent();
     }
 }

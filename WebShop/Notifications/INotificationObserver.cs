@@ -1,4 +1,6 @@
-﻿namespace WebShop.Notifications
+﻿using WebShop.SQL.Entities;
+
+namespace WebShop.Notifications
 {
     // Gränssnitt för notifieringsobservatörer enligt Observer Pattern
     public interface INotificationObserver

@@ -1,6 +1,4 @@
-﻿using WebShop.Common.Interfaces;
-
-namespace WebShop.SQL.Entities;
+﻿namespace WebShop.SQL.Entities;
 
 public class Product : EntityBase
 {
