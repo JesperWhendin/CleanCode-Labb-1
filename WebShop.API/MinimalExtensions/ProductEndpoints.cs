@@ -7,7 +7,7 @@ public static class ProductEndpoints
 {
     public static IEndpointRouteBuilder MapProductEndpoints(this IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("api/product").WithDisplayName("Product Endpoints");
+        var group = app.MapGroup("api/products").WithDisplayName("Product Endpoints");
 
         group.MapGet("{id:int}", GetByIdAsync);
         group.MapGet("", GetAllAsync);
