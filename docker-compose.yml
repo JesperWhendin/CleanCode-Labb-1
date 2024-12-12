@@ -17,21 +17,26 @@ services:
     environment:
       SA_PASSWORD: "Password123"
       ACCEPT_EULA: "Y"
+      MSSQL_PID: Developer
     ports:
       - "1433:1433"
     volumes:
       - sql_data:/var/opt/mssql
 
   migrations:
+    image: mcr.microsoft.com/dotnet/sdk:8.0
+    container_name: migrations
     build:
       context: .
       dockerfile: Dockerfile
+    working_dir: /App
+    entrypoint: ["dotnet", "ef", "database", "update"]
     environment:
-     - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Server=sql;Database=WebShopSQL;User=sa;Password=Password123;Encrypt=False;TrustServerCertificate=True;
     depends_on:
      - sql
-    entrypoint: ["dotnet", "ef", "database", "update"]
-
+    volumes:
+     - .:/App
 
 volumes:
   sql_data:

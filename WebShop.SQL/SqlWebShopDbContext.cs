@@ -1,4 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Storage;
 using WebShop.SQL.Entities;
 
 namespace WebShop.SQL;
@@ -8,9 +10,20 @@ public class SqlWebShopDbContext : DbContext
     // Declare DbSets
     public DbSet<Product> Products { get; set; }
 
-
     public SqlWebShopDbContext(DbContextOptions<SqlWebShopDbContext> options) : base(options)
     {
+        try
+        {
+            if(Database.GetService<IDatabaseCreator>() is RelationalDatabaseCreator databaseCreator)
+            {
+                if(!databaseCreator.CanConnect()) databaseCreator.Create();
+                if(!databaseCreator.HasTables()) databaseCreator.CreateTables();
+            }
+        }
+        catch(Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -18,8 +31,6 @@ public class SqlWebShopDbContext : DbContext
         modelBuilder.Entity<Product>()
             .Property(p => p.Price)
             .HasPrecision(18, 2);
-
-
 
         #region DataSeeding
         modelBuilder.Entity<Product>().HasData(
