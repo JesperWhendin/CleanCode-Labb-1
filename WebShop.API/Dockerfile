@@ -10,7 +10,7 @@ COPY WebShop.API/WebShop.API.csproj WebShop.API/
 RUN dotnet restore WebShopSolution.sln
 
 COPY . ./
-RUN dotnet test WebShop.Tests/WebShop.Tests.csproj --no-build --verbosity normal
+RUN dotnet test WebShop.Tests/WebShop.Tests.csproj --verbosity normal
 RUN dotnet publish WebShop.API/WebShop.API.csproj -c Release -o out
 
 FROM mcr.microsoft.com/dotnet/aspnet:8.0@sha256:6c4df091e4e531bb93bdbfe7e7f0998e7ced344f54426b7e874116a3dc3233ff
